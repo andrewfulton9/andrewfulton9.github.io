@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Path Specifications for Pyspark on Mac OSX"
+title:  "Path Specifications for Pyspark on Mac OS X"
 date:   2016-09-20
 author: Andrew Fulton
 categories: Programming
