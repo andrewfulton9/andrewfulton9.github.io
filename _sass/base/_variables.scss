@@ -42,7 +42,7 @@ $green-sea: #16a085;
 $base-background-color: #fff;
 $base-font-color: $dark-gray;
 $action-color: $green-sea;
-$highlight-color: tint($green-sea, 33%);
+$highlight-color: $green-sea;
 
 // Border
 $base-border-color: $light-gray;
