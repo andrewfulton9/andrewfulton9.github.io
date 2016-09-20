@@ -14,7 +14,7 @@ subtitle: "Machine Learning | Statistics | Programming"
 email: andrewfulton9@gmail.com
 name: Andrew Fulton
 description: >
-  A simple yet classy theme for your Jekyll website or blog.
+  A blog built with Jekyll and hosted by GitHub Pages
 # Base URL of site (i.e. /blog). It should always start with a slash,
 # and never end with a slash. Set it to a blank value if hosting at the
 # root of your server.
