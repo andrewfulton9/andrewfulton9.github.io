@@ -9,8 +9,8 @@ exclude:
   - "/vendor/"
 
 # Site settings
-title: AndrewFulton
-subtitle: "Data Science | Machine Learning | Statistics"
+title: Andrew Fulton
+subtitle: "Machine Learning | Statistics | Programming"
 email: andrewfulton9@gmail.com
 name: Andrew Fulton
 description: >
