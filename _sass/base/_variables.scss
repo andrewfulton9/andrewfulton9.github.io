@@ -42,7 +42,7 @@ $green-sea: #388a63;
 $base-background-color: #fff;
 $base-font-color: $dark-gray;
 $action-color: $green-sea;
-$highlight-color: tint($green-sea, 33%);
+$highlight-color: $green-sea;
 
 // Border
 $base-border-color: $light-gray;
@@ -50,4 +50,4 @@ $base-border: 1px solid $base-border-color;
 
 // Forms
 $form-box-shadow: inset 0 1px 3px rgba(#000, 0.06);
-$form-box-shadow-focus: $form-box-shadow, 0 0 5px adjust-color($green-sea, $lightness: 5%, $alpha: 0);
+$form-box-shadow-focus: $form-box-shadow, 0 0 5px adjust-color($green-sea, $lightness: -5%, $alpha: 0);
