@@ -15,7 +15,7 @@ An image classification system built in collaboration with Dobot, Inc. that uses
 A GUI to score and analyze Spontaneous Alternation data. Built with python, uses Pandas, xlrd, and guidata.
 
 ### [Spontaneous Alternation Scorer Webapp](https://github.com/andrewfulton9/SA_scorer_webapp)
-##### IN PROGRESS
+*IN PROGRESS*
 
 A webapp version of the SA scorer GUI built on top of flask.
 
