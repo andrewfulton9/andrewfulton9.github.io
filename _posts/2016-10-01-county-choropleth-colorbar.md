@@ -7,8 +7,6 @@ categories: Programming
 tags:	Programming Plotly Python Choropleth Colorbar
 ---
 
-# Introduction
-
 In this tutorial I will demonstrate how to make a county level choropleth with a custom colorbar using Python and Plotly. Much of the material in this tutorial can be found in Plotly's [County Level Choropleth in Python](https://plot.ly/python/county-level-choropleth/) tutorial, with the notable difference being that my tutorial will use a custom colorscale to indicate population of each county. Please see the linked tutorial on downloading Plotly and getting a Mapbox Access Token.
 
 # Getting the Data
@@ -110,6 +108,10 @@ now `df_2015` should look something like this:
 |Alamosa  |2015   |16202             |{u'geometry': {u'type': u'MultiPolygon', u'coo...|
 |Arapahoe |2015   |627056            |{u'geometry': {u'type': u'MultiPolygon', u'coo...|
 |...      |...    |...               |...                                              |
+
+
+
+
 
 
 At this point I need to figure out the colors I will use. I want a pretty diverse scale to really show the differences between the populations for each county. To do this I was able to use [Chroma.js Color Scale](https://gka.github.io/palettes/#colors=lightyellow,orange,deeppink,darkred|steps=101|bez=1|coL=1) to get a hundred seperate color values in the shades that I wanted, so that I could have a seperate shade for each 10,000 people in a county. I needed 101 colors to make it easy to map the colors on a scale from 0 to 1 for Plotly's colorbar feature, so I just repeated the last item of the list twice. I than zip the list into a dictionary
@@ -244,4 +246,4 @@ py.image.save_as(fig, filename='image/test.jpeg',
 
 Now your image should be saved in the location you specified. If you followed with this tutorial exactly, this should be your result:
 
-![colorado population](../assets/coloradopop2015.jpeg)
+![colorado population](coloradopop2015.jpeg)
