@@ -111,6 +111,7 @@ now `df_2015` should look something like this:
 |Arapahoe |2015   |627056            |{u'geometry': {u'type': u'MultiPolygon', u'coo...|
 |...      |...    |...               |...                                              |
 
+
 At this point I need to figure out the colors I will use. I want a pretty diverse scale to really show the differences between the populations for each county. To do this I was able to use [Chroma.js Color Scale](https://gka.github.io/palettes/#colors=lightyellow,orange,deeppink,darkred|steps=101|bez=1|coL=1) to get a hundred seperate color values in the shades that I wanted, so that I could have a seperate shade for each 10,000 people in a county. I needed 101 colors to make it easy to map the colors on a scale from 0 to 1 for Plotly's colorbar feature, so I just repeated the last item of the list twice. I than zip the list into a dictionary
 
 ```python
@@ -153,6 +154,7 @@ After doing this, `df_2015` should look like this:
 |Alamosa  |2015   |16202             |{u'geometry': {u'type': u'MultiPolygon', u'coo...|#fffddb |
 |Arapahoe |2015   |627056            |{u'geometry': {u'type': u'MultiPolygon', u'coo...|#e35056 |
 |...      |...    |...               |...                                              |...     |
+
 
 At this point we can't start getting data together for the plotly diagram. With county level data in plotly and mapbox, the county geolocations and colors are plotted using a list of dictionary layers inside the layout object. Let's make our layers list.
 
