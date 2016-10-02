@@ -155,7 +155,7 @@ After doing this, `df_2015` should look like this:
 |...      |...    |...               |...                                              |...     |
 
 
-At this point we can't start getting data together for the plotly diagram. With county level data in plotly and mapbox, the county geolocations and colors are plotted as layers using a list of dictionaries inside the layout object, which I will go into more detail of in a moment. Let's make our layers list.
+At this point we can start getting data together for the plotly diagram. With county level data in plotly and mapbox, the county geolocations and colors are plotted as layers using a list of dictionaries inside the layout object, which I will go into more detail of in a moment. Let's make our layers list.
 
 ```python
 layers_ls = []
