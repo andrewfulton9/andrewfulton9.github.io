@@ -3,20 +3,21 @@ layout: post
 title:  "Tutorial on Using Python and Plotly to Make County Level Choropleth with a Custom Colorbar"
 date:   2016-09-20
 author: Andrew Fulton
+cover: "/assets/coloradopop2015.jpeg"
 categories: Programming
 tags:	Programming Plotly Python Choropleth Colorbar
 ---
 
-In this tutorial I will demonstrate how to make a county level choropleth with a custom colorbar using Python and Plotly. Much of the material in this tutorial can be found in Plotly's [County Level Choropleth in Python](https://plot.ly/python/county-level-choropleth/) tutorial, with the notable difference being that my tutorial will use a custom colorscale to indicate population of each county. Please see the linked tutorial on downloading Plotly and getting a Mapbox Access Token.
+In this tutorial I will demonstrate how to make a county level choropleth with a custom colorbar using Python and Plotly. Much of the material in this tutorial can be found in Plotly's [County Level Choropleth in Python](https://plot.ly/python/county-level-choropleth/) tutorial, with the notable difference being that this tutorial will use a custom colorscale to indicate population of each county. Please see the tutorial linked above on downloading Plotly and getting a Mapbox Access Token.
 
 # Getting the Data
 
-I will be using Colorado's population county population data for this tutorial. The population data I will be using has been generously provided by Colorado's state government and can be downloaded from [here](https://data.colorado.gov/Demographics/Colorado-Population-Projections/q5vp-adf3). The website that provides the geojson files with county demarcation data is [CivicDashboards](http://catalog.civicdashboards.com), and the specific colorado county demarcation dataset can be downloaded from [here](http://catalog.civicdashboards.com/dataset/colorado-counties-polygon).
+I will be using Colorado's county population data for this tutorial. This data that I will be using has been generously provided by Colorado's state government and can be downloaded from [here](https://data.colorado.gov/Demographics/Colorado-Population-Projections/q5vp-adf3). The website that provides the geojson files with county geolocation data is [CivicDashboards](http://catalog.civicdashboards.com), and the specific colorado county geolocation dataset can be downloaded from [here](http://catalog.civicdashboards.com/dataset/colorado-counties-polygon).
 
 # Let's begin
 
 First begin by importing the python libraries you will need.
-<small> note: I am importing os here because I have my Mapbox Access Token saved in my `.bash_profile`, it may not be neccessary for you to do this.</small>
+<small> note: I am importing `os` here because I have my Mapbox Access Token saved in my `.bash_profile`, it may not be neccessary for you to do this.</small>
 
 ```python
 import pandas as pd
@@ -27,7 +28,7 @@ import plotly.graph_objs as go
 import os
 ```
 
-Next I will read in the data. I am using pandas for data management.
+Next I will read in the data. I will be using pandas for handling data in this tutorial.
 
 ```python
 # read in population data
@@ -38,7 +39,7 @@ with open('colorado_counties.geojson') as f:
     counties = json.load(f)
 ```
 
-Since the population data is broken out by county, year, and age, I want the sum of the population for each county and year ignoring age. To do this I group the data by county and year and get the sum. I will also drop the columns I don't care about.
+Since the population data is broken out by county, year, and age, I want the sum of the population for each county and year ignoring age. To do this, I group the data by county and year and get the sum. I also drop the columns I don't care about.
 
 ```python
 full_df = df.groupby(['county', 'year'], as_index=False).sum()
@@ -46,7 +47,7 @@ full_df.drop(['fipsCode', 'age', 'malePopulation', 'femalePopulation'],
              inplace = True, axis=1)
 ```
 
-Now you should have a dataframe `full_df` that looks something like this:
+You should now have a dataframe, `full_df`, that looks something like this:
 
 |county   |year   |totalPopulation   |
 |:-------:|:-----:|:----------------:|
@@ -55,7 +56,7 @@ Now you should have a dataframe `full_df` that looks something like this:
 |Adams    |1992   |281386            |
 |...      |...    |...               |
 
-In this tutorial I am only interested in the data for 2015 though so lets isolate the data for that year.
+In this tutorial, I am only interested in the data for 2015 though so lets isolate the data for that year.
 
 ```python
 df_2015 = full_df[full_df['year'] == 2015]
@@ -82,7 +83,7 @@ for x in range(len(counties['features'])):
     # I ignore the last eleven characters in the name since the geojson file includes ' County, CO' in the county names and the population data does not
     name = counties['features'][x]['properties']['name'][:-11]
     if name in df['county'].unique():
-        d[name] = counties['features'][x]
+        geo_dict[name] = counties['features'][x]
     else:
         print 'not in: ', name
 ```
@@ -90,7 +91,7 @@ for x in range(len(counties['features'])):
 Once I have my dictionary of geolocation data in order, I want to make it into a pandas series to make it easy to join to my population dataframe
 
 ```python
-ser = pd.Series(d.values(), index = d.keys())
+ser = pd.Series(geo_dict.values(), index = geo_dict.keys())
 ser.name = 'coordinates'
 ```
 
@@ -110,7 +111,7 @@ now `df_2015` should look something like this:
 |...      |...    |...               |...                                              |
 
 
-At this point I need to figure out the colors I will use. I want a pretty diverse scale to really show the differences between the populations for each county. To do this I was able to use [Chroma.js Color Scale](https://gka.github.io/palettes/) to get a hundred seperate color values in the shades that I wanted, so that I could have a seperate shade for each 10,000 people in a county. I needed 101 colors to make it easy to map the colors on a scale from 0 to 1 for Plotly's colorbar feature, so I just repeated the last item of the list twice. I than zip the list into a dictionary
+At this point I need to figure out the colors I will use. I want a pretty diverse scale to really show the differences between the populations for each county. To do this, I use [Chroma.js Color Scale](https://gka.github.io/palettes/) to get a hundred separate color values in the shades that I want, so that I can have a separate shade for each 10,000 people in a county. I need 101 colors to make it easy to map the colors on a scale from 0 to 1 for Plotly's colorbar feature, so I just repeat the last item of the list twice. I than zip the list into a dictionary
 
 ```python
 colors = ['#ffffe0','#fffddb','#fffad7','#fff7d1','#fff5cd','#fff2c8',
@@ -141,7 +142,7 @@ def get_scl(obj):
     frac = obj / 10000
     return scl[frac]
 
-full_df['color'] = full_df['totalPopulation'].apply(get_scl)
+df_2015['color'] = df_2015['totalPopulation'].apply(get_scl)
 ```
 
 After doing this, `df_2015` should look like this:
@@ -154,7 +155,7 @@ After doing this, `df_2015` should look like this:
 |...      |...    |...               |...                                              |...     |
 
 
-At this point we can't start getting data together for the plotly diagram. With county level data in plotly and mapbox, the county geolocations and colors are plotted using a list of dictionary layers inside the layout object. Let's make our layers list.
+At this point we can't start getting data together for the plotly diagram. With county level data in plotly and mapbox, the county geolocations and colors are plotted as layers using a list of dictionaries inside the layout object, which I will go into more detail of in a moment. Let's make our layers list.
 
 ```python
 layers_ls = []
@@ -166,27 +167,27 @@ for x in df_2015.index:
     layers_ls.append(item_dict)
 ```
 
-so here for each county in the `df_2015` dataframe we add a dictionary that says the source type, the source (our geolocations for each individual county), the type (fill to fill in the color), and the color to fill it with.
+so here for each county in the `df_2015` dataframe we append a dictionary to our list of layers `layers_ls` that says the source type (geojson), the source (our geolocations for each individual county), the type (fill to fill in the color), and the color to fill it with.
 
-let's also go ahead and make a variable with our mapbox access token. Since mine is saved into my `.bash_profile`, I access it as such:
+let's also go ahead and make a variable with our mapbox access token. Since mine is saved in my `.bash_profile`, I access it as such:
 
 ```python
 mapbox_access_token = os.environ['MAPBOX_AT']
 ```
 
-Plotly works largely with dictionaries and plotly subclass dictionaries from the graph_objects class. The documentation for these objects can be found [here](https://plot.ly/python/reference/#scattermapbox-marker-colorbar-len).
+Plotly works largely with dictionaries and Plotly subclass dictionaries from the graph_objects module nested within eachother. The documentation for these objects can be found [here](https://plot.ly/python/reference/#scattermapbox-marker-colorbar-len).
 
-Essentially you will make a plotly figure with a data and a layout object. To do county level choropleths with custom map objects, all of your actually plotting will be done in your layout object dictionary. However, to add a colorscale, your colorscale data must be in a data object. I will start by making my data object
+Essentially you will make a plotly figure with using a dictionary with data and a layout dictionaries nested within it. To do county level choropleths with custom map objects, all of your actually plotting will be done in your layout object dictionary. However, to add a colorscale, your colorscale data must be in a data object. I will start by making my data object
 
-Before I do this though I need to have a list for the custom colorscale. The first Item of the list needs to look something like `[0, '#fffddb']` and the item should something like `[[0, '#fffddb']`. It is really important that the first start with 0 and the last item start with 1. If they do not, your colorscale won't show up, and plotly will put a standard own colorscale. I used my colorscale dictionary to make my list as such
+Before I do this though I need to have a list for the custom colorscale. The first Item of the list needs to be a sublist that looks something like `[0, '#fffddb']` and the item should something like `[[1, '#8b0000']`. It is really important that the first sublist start with 0 and the last sublist start with 1. If they do not, your colorscale won't show up, and plotly will display its own standard colorscale in its place. I used my colorscale dictionary to make my list as such
 
 ```python
 colorscl = [[i * .01, v] for i,v in enumerate(scl.values())]
 ```
 
-it should look something like `[[0, '#fffddb']...[0, '#fffddb']]`
+it should look something like `[[0, '#fffddb']...[1, '#8b0000']]`
 
-Next I will make a data object. Since you don't actually want your markers to show up, you only need them there to put in a colorscale, just put them at a random latitude and longitude. I did lat:0 lon:0 which is somewhere in central west Africa. Your marker dict is the most important part. `cmax` is how highest value the scale on your colorbar will show, and `cmin` is lowest. `colorscale` is where you put your colorscale list. Make sure `showscale` is `True` and `autocolorscale` is `False`. For `colorbar` use a `go.ColorBar` object where you can adjust the length with `len`. You can also set a title and do other things here. Unfortunately, the title and colorbar layout aren't as customizable as I would have liked so I didn't do much here. See the documentation I linked above.
+Next I will make my data dictionary suing `graph_objects` dictionary subclass `go.Data`. Since you don't actually want your markers to show up, you only need them there to put in a colorscale, just put them at a random latitude and longitude. I did lat:0 lon:0 which is somewhere in central west Africa. the marker dict is the most important part here. `cmax` is how highest value the scale on your colorbar will show, and `cmin` is lowest. `color` is where you define the range between `cmax` and `cmin`. `colorscale` is where you put your colorscale list. Make sure `showscale` is `True` and `autocolorscale` is `False`. For `colorbar` use a `go.ColorBar` dictionary subclass where you can adjust the length of your colorscale with `len`. You can also set a title and do other things here. Unfortunately, the title and colorbar layout aren't as customizable as I would like so I'm not using a lot of the features here. See the [documentation](https://plot.ly/python/reference/#scattermapbox-marker-colorbar-len) for more info.
 
 ```python
 data = go.Data([
@@ -208,7 +209,7 @@ data = go.Data([
                      ])
 ```
 
-Next make your layout object. Play around with the `height`, `width` and `zoom` as well as the `lat` and `lon` in the `center` dictionary of the `mapbox` dictionary to get your plot viewing correctly. I have things set here to view Colorado well.
+Next I make my layout dictionary using graph_objects dictionary subclass `go.Layout()`. Play around with the `height`, `width` and `zoom` as well as the `lat` and `lon` in the `center` dictionary of the `mapbox` dictionary to get your plot viewing correctly. I have things set here to view Colorado well.
 
 ```python
 layout = go.Layout(
@@ -232,7 +233,7 @@ layout = go.Layout(
 )
 ```
 
-finally you can build the figure saving it where you like
+Finally I can build the figure saving it where you like. Again you may want to play around with the `width` and `height` variables.
 
 ```python
 fig = dict(data = data, layout=layout)
@@ -240,6 +241,6 @@ py.image.save_as(fig, filename='image/test.jpeg',
                  width = 750, height= 575)
 ```
 
-Now your image should be saved in the location you specified. If you followed with this tutorial exactly, this should be your result:
+Now my image is saved in the location I specified `[current directory]/image/test.jpeg`. If you followed with this tutorial exactly, this should be your result:
 
 ![colorado population](https://raw.githubusercontent.com/andrewfulton9/andrewfulton9.github.io/master/assets/coloradopop2015.jpeg)
