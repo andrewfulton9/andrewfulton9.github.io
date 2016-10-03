@@ -243,4 +243,4 @@ py.image.save_as(fig, filename='image/test.jpeg',
 
 Now my image is saved in the location I specified `[current directory]/image/test.jpeg`. If you followed with this tutorial exactly, this should be your result:
 
-![colorado population](https://raw.githubusercontent.com/andrewfulton9/andrewfulton9.github.io/master/assets/coloradopop2015.jpeg)
+![colorado population](https://raw.githubusercontent.com/andrewfulton9/andrewfulton9.github.io/master/assets/colorado2015pop.jpeg)
