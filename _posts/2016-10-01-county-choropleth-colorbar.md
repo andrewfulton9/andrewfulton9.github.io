@@ -56,13 +56,13 @@ You should now have a dataframe, `full_df`, that looks something like this:
 |Adams    |1992   |281386            |
 |...      |...    |...               |
 
-In this tutorial, I am only interested in the data for 2015 though so lets isolate the data for that year.
+In this tutorial, I am only interested in the data for 2015 though, so lets isolate the data for that year.
 
 ```python
 df_2015 = full_df[full_df['year'] == 2015]
 ```
 
-Now your dataframe `df_2015` should look as such
+Now you should have a `df_2015` dataframe that will look like this:
 
 |county   |year   |totalPopulation   |
 |:-------:|:-----:|:----------------:|
@@ -111,7 +111,7 @@ now `df_2015` should look something like this:
 |...      |...    |...               |...                                              |
 
 
-At this point I need to figure out the colors I will use. I want a pretty diverse scale to really show the differences between the populations for each county. To do this, I use [Chroma.js Color Scale](https://gka.github.io/palettes/) to get a hundred separate color values in the shades that I want, so that I can have a separate shade for each 10,000 people in a county. I need 101 colors to make it easy to map the colors on a scale from 0 to 1 for Plotly's colorbar feature, so I just repeat the last item of the list twice. I than zip the list into a dictionary
+At this point I need to figure out the colors I will use. Ideally, I would like a pretty diverse scale to really show the differences between the populations for each county. To do this, I use [Chroma.js Color Scale](https://gka.github.io/palettes/) to get a hundred separate color values in the shades that I want, so that I can have a separate shade for each 10,000 people in a county. Also, I will need 101 colors to make it easy to map the colors on a scale from 0 to 1 for Plotly's colorbar feature, so I just repeat the last item of the list twice. I than zip the list into a dictionary
 
 ```python
 colors = ['#ffffe0','#fffddb','#fffad7','#fff7d1','#fff5cd','#fff2c8',
@@ -155,7 +155,7 @@ After doing this, `df_2015` should look like this:
 |...      |...    |...               |...                                              |...     |
 
 
-At this point we can start getting data together for the plotly diagram. With county level data in plotly and mapbox, the county geolocations and colors are plotted as layers using a list of dictionaries inside the layout object, which I will go into more detail of in a moment. Let's make our layers list.
+At this point we can start getting data together for the plotly diagram. With county level data in plotly and mapbox, the county geolocations and colors are plotted as layers using a list of dictionaries inside the layout dictionary object, of which I will go into more detail in a moment. Let's make our layers list.
 
 ```python
 layers_ls = []
@@ -167,7 +167,7 @@ for x in df_2015.index:
     layers_ls.append(item_dict)
 ```
 
-so here for each county in the `df_2015` dataframe we append a dictionary to our list of layers `layers_ls` that says the source type (geojson), the source (our geolocations for each individual county), the type (fill to fill in the color), and the color to fill it with.
+So for each county in the `df_2015` dataframe we append a dictionary to our list of layers, `layers_ls`, that says the source type (geojson), the source (our geolocations for each individual county), the type (fill to fill in the color), and the color to fill it with.
 
 let's also go ahead and make a variable with our mapbox access token. Since mine is saved in my `.bash_profile`, I access it as such:
 
@@ -175,19 +175,19 @@ let's also go ahead and make a variable with our mapbox access token. Since mine
 mapbox_access_token = os.environ['MAPBOX_AT']
 ```
 
-Plotly works largely with dictionaries and Plotly subclass dictionaries from the graph_objects module nested within eachother. The documentation for these objects can be found [here](https://plot.ly/python/reference/#scattermapbox-marker-colorbar-len).
+Plotly works largely with dictionaries and Plotly subclass dictionaries from the graph_objects module nested within each other. The documentation for these objects can be found [here](https://plot.ly/python/reference/#scattermapbox-marker-colorbar-len).
 
-Essentially you will make a plotly figure with using a dictionary with data and a layout dictionaries nested within it. To do county level choropleths with custom map objects, all of your actually plotting will be done in your layout object dictionary. However, to add a colorscale, your colorscale data must be in a data object. I will start by making my data object
+Essentially you will make a plotly figure using a dictionary with a data dictionary and a layout dictionary nested within it. To do county level choropleths with custom map objects, all of your actually plotting will be done in your layout dictionary. However, to add a colorscale, all your colorscale data must be in a data dictionary.
 
-Before I do this though I need to have a list for the custom colorscale. The first Item of the list needs to be a sublist that looks something like `[0, '#fffddb']` and the item should something like `[[1, '#8b0000']`. It is really important that the first sublist start with 0 and the last sublist start with 1. If they do not, your colorscale won't show up, and plotly will display its own standard colorscale in its place. I used my colorscale dictionary to make my list as such
+Before we can make our data dictionary though, we must have out colorscale in the right format. Right now we have our colors saved into our `scl` dictionary, but to make a custom colorscale, they must be in a list. The first item of the list needs to be a sublist that looks something like `[0, '#fffddb']` and the last item should look something like `[[1, '#8b0000']`. It is really important that the first sublist start with 0 and the last sublist start with 1. If they do not, your colorscale won't show up, and plotly will display its own standard colorscale in its place. I use my original color list `colors` to make my new colorscale list.
 
 ```python
-colorscl = [[i * .01, v] for i,v in enumerate(scl.values())]
+colorscl = [[i * .01, v] for i,v in enumerate(colors)]
 ```
 
-it should look something like `[[0, '#fffddb']...[1, '#8b0000']]`
+It should look something like this: `[[0, '#fffddb']...[1, '#8b0000']]`
 
-Next I will make my data dictionary suing `graph_objects` dictionary subclass `go.Data`. Since you don't actually want your markers to show up, you only need them there to put in a colorscale, just put them at a random latitude and longitude. I did lat:0 lon:0 which is somewhere in central west Africa. the marker dict is the most important part here. `cmax` is how highest value the scale on your colorbar will show, and `cmin` is lowest. `color` is where you define the range between `cmax` and `cmin`. `colorscale` is where you put your colorscale list. Make sure `showscale` is `True` and `autocolorscale` is `False`. For `colorbar` use a `go.ColorBar` dictionary subclass where you can adjust the length of your colorscale with `len`. You can also set a title and do other things here. Unfortunately, the title and colorbar layout aren't as customizable as I would like so I'm not using a lot of the features here. See the [documentation](https://plot.ly/python/reference/#scattermapbox-marker-colorbar-len) for more info.
+Next I will make my data dictionary using `graph_objects` dictionary subclass `go.Data`. Since you don't actually want your markers to show up, you only need them there to put in a colorscale, just put them at a random latitude and longitude that won't show up in your image. I use lat:0 lon:0 which is somewhere in central west Africa. the marker dict is the most important part here. `cmax` is how highest value the scale on your colorbar will show, and `cmin` is lowest. `color` is where you define the range between `cmax` and `cmin`. `colorscale` is where you put your colorscale list. Make sure `showscale` is `True` and `autocolorscale` is `False`. For `colorbar` use a `go.ColorBar` dictionary subclass where you can adjust the length of your colorscale with `len`. You can also set a title and do other things here. Unfortunately, the title and colorbar layout aren't as customizable as I would like so I'm not using a lot of the features here. See the [documentation](https://plot.ly/python/reference/#scattermapbox-marker-colorbar-len) for more info.
 
 ```python
 data = go.Data([
@@ -209,11 +209,11 @@ data = go.Data([
                      ])
 ```
 
-Next I make my layout dictionary using graph_objects dictionary subclass `go.Layout()`. Play around with the `height`, `width` and `zoom` as well as the `lat` and `lon` in the `center` dictionary of the `mapbox` dictionary to get your plot viewing correctly. I have things set here to view Colorado well.
+Next I make my layout dictionary using the graph_objects dictionary subclass `go.Layout()`. Play around with the `height`, `width` and `zoom`, as well as the `lat` and `lon` in the `center` dictionary of the `mapbox` dictionary to get your plot viewing correctly. I have things set here to view Colorado well.
 
 ```python
 layout = go.Layout(
-    title = 'Colorado 2016 Population (x 10,000)',
+    title = 'Colorado 2015 Population (x 10,000)',
     height=1050,
     width=800,
     autosize=True,
