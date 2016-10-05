@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "[Tutorial] Building a County Level Choropleth with a Custom Colorbar with Python and Plotly"
-date:   2016-09-20
+date:   2016-10-01
 author: Andrew Fulton
 cover: "/assets/colorado2015pop.jpeg"
 categories: Programming
